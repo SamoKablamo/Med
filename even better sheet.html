@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Physics Cheat Sheet</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --border: #2a2a3e;
+    --accent1: #7c6af7;
+    --accent2: #4ecdc4;
+    --accent3: #ff6b6b;
+    --accent4: #ffd93d;
+    --text: #e8e8f0;
+    --muted: #8888a8;
+    --formula: #c8f0e8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    padding: 2rem;
+    min-height: 100vh;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .header::after {
+    content: '';
+    display: block;
+    width: 120px;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+    margin: 1rem auto 0;
+    border-radius: 2px;
+  }
+  .header h1 {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.8rem, 4vw, 3rem);
+    letter-spacing: -1px;
+    background: linear-gradient(135deg, #fff 30%, var(--accent1));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .header p {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-top: 0.5rem;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 1.2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.4rem;
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+  }
+  .card:hover { transform: translateY(-2px); border-color: var(--accent1); }
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    border-radius: 12px 12px 0 0;
+  }
+  .card:nth-child(4n+1)::before { background: var(--accent1); }
+  .card:nth-child(4n+2)::before { background: var(--accent2); }
+  .card:nth-child(4n+3)::before { background: var(--accent3); }
+  .card:nth-child(4n)::before   { background: var(--accent4); }
+
+  .card-title {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    margin-bottom: 0.9rem;
+  }
+
+  .formula-block {
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.6rem;
+    border-left: 3px solid transparent;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+    position: relative;
+  }
+  .formula-block:hover {
+    background: #1e1e2e;
+    transform: translateX(3px);
+  }
+  .formula-block:hover::after {
+    content: 'click to expand';
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.65rem;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+
+  .card:nth-child(4n+1) .formula-block { border-left-color: var(--accent1); }
+  .card:nth-child(4n+2) .formula-block { border-left-color: var(--accent2); }
+  .card:nth-child(4n+3) .formula-block { border-left-color: var(--accent3); }
+  .card:nth-child(4n)   .formula-block { border-left-color: var(--accent4); }
+
+  .formula {
+    font-family: 'Space Mono', monospace;
+    font-size: 1.05rem;
+    color: var(--formula);
+    margin-bottom: 0.35rem;
+  }
+  .vars {
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+  .vars span { color: #b0b0cc; }
+
+  /* MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(6px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .modal-overlay.active { display: flex; }
+
+  .modal {
+    background: #161620;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 2.5rem;
+    max-width: 560px;
+    width: 100%;
+    position: relative;
+    animation: modalIn 0.2s ease;
+  }
+  @keyframes modalIn {
+    from { opacity: 0; transform: scale(0.94) translateY(10px); }
+    to   { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  .modal-accent {
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    border-radius: 16px 16px 0 0;
+    background: linear-gradient(90deg, var(--accent1), var(--accent2));
+  }
+
+  .modal-topic {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 1rem;
+  }
+
+  .modal-formula {
+    font-family: 'Space Mono', monospace;
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    color: #fff;
+    margin-bottom: 1.5rem;
+    line-height: 1.3;
+    word-break: break-word;
+  }
+
+  .modal-divider {
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 1.5rem;
+  }
+
+  .modal-vars-title {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--muted);
+    margin-bottom: 0.8rem;
+  }
+
+  .modal-var-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.8rem;
+    margin-bottom: 0.6rem;
+  }
+  .modal-var-name {
+    font-family: 'Space Mono', monospace;
+    font-size: 1rem;
+    color: var(--accent2);
+    min-width: 60px;
+  }
+  .modal-var-desc {
+    font-size: 0.88rem;
+    color: #b0b0cc;
+    line-height: 1.5;
+    padding-top: 2px;
+  }
+
+  .modal-note {
+    margin-top: 1.2rem;
+    padding: 0.8rem 1rem;
+    background: var(--surface);
+    border-radius: 8px;
+    font-size: 0.82rem;
+    color: var(--muted);
+    border-left: 3px solid var(--accent4);
+    line-height: 1.6;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1.2rem; right: 1.2rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.15s, color 0.15s;
+  }
+  .modal-close:hover { background: var(--border); color: var(--text); }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Physics Formula Sheet</h1>
+  <p>Czech High School Physics · Click any formula to expand</p>
+</div>
+
+<div class="grid">
+
+  <!-- KINEMATICS -->
+  <div class="card">
+    <div class="card-title">02 · Kinematika — Kinematics</div>
+
+    <div class="formula-block" onclick="openModal('Kinematics', 'v = s / t', [['v','velocity — how fast something moves (m/s)'],['s','distance or displacement (m)'],['t','time elapsed (s)']], 'Uniform motion only — acceleration must be zero.')">
+      <div class="formula">v = s / t</div>
+      <div class="vars">velocity, distance, time</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Kinematics', 'a = Δv / t', [['a','acceleration — rate of change of velocity (m/s²)'],['Δv','change in velocity: v_final − v_initial (m/s)'],['t','time over which change occurs (s)']], null)">
+      <div class="formula">a = Δv / t</div>
+      <div class="vars">acceleration from velocity change</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Kinematics', 's = v₀t + ½at²', [['s','displacement (m)'],['v₀','initial velocity at t=0 (m/s)'],['a','constant acceleration (m/s²)'],['t','time elapsed (s)']], 'The most used kinematics formula. Works when acceleration is constant.')">
+      <div class="formula">s = v₀t + ½at²</div>
+      <div class="vars">displacement with acceleration</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Kinematics', 'v = v₀ + at', [['v','final velocity (m/s)'],['v₀','initial velocity (m/s)'],['a','acceleration (m/s²)'],['t','time (s)']], null)">
+      <div class="formula">v = v₀ + at</div>
+      <div class="vars">final velocity</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Kinematics', 'v² = v₀² + 2as', [['v','final velocity (m/s)'],['v₀','initial velocity (m/s)'],['a','acceleration (m/s²)'],['s','displacement (m)']], 'Useful when time is unknown — no t variable needed.')">
+      <div class="formula">v² = v₀² + 2as</div>
+      <div class="vars">velocity without time</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Free Fall', 's = ½gt²  |  v = gt', [['s','distance fallen (m)'],['g','gravitational acceleration = 9.81 m/s²'],['t','time of fall (s)'],['v','velocity at time t (m/s)']], 'Only valid when initial velocity v₀ = 0 (dropped from rest).')">
+      <div class="formula">s = ½gt²  |  v = gt</div>
+      <div class="vars">free fall from rest</div>
+    </div>
+  </div>
+
+  <!-- DYNAMICS -->
+  <div class="card">
+    <div class="card-title">03 · Dynamika — Dynamics</div>
+
+    <div class="formula-block" onclick="openModal('Dynamics — Newton\'s 2nd Law', 'F = ma', [['F','net force acting on object (N = kg·m/s²)'],['m','mass of the object (kg)'],['a','acceleration produced (m/s²)']], 'The most fundamental law in mechanics. Net force = sum of ALL forces.')">
+      <div class="formula">F = ma</div>
+      <div class="vars">force, mass, acceleration</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Dynamics — Weight', 'W = mg', [['W','weight — gravitational force on object (N)'],['m','mass (kg)'],['g','gravitational acceleration = 9.81 m/s²']], 'Weight ≠ mass! Weight is a force; mass is a fixed property.')">
+      <div class="formula">W = mg</div>
+      <div class="vars">weight force</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Dynamics — Friction', 'F_f = μN', [['F_f','friction force (N)'],['μ','coefficient of friction (dimensionless, 0–1+)'],['N','normal force — surface push perpendicular to motion (N)']], 'μ_static > μ_kinetic. Static friction keeps object still; kinetic acts while sliding.')">
+      <div class="formula">F_f = μN</div>
+      <div class="vars">friction force</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Dynamics — Momentum', 'p = mv', [['p','momentum (kg·m/s)'],['m','mass (kg)'],['v','velocity (m/s)']], 'Momentum is conserved in closed systems (no external forces).')">
+      <div class="formula">p = mv</div>
+      <div class="vars">momentum</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Dynamics — Impulse', 'F·t = Δp', [['F','applied force (N)'],['t','time force acts (s)'],['Δp','change in momentum (kg·m/s)']], 'Impulse-momentum theorem. A large force over short time = same effect as small force over long time.')">
+      <div class="formula">F·t = Δp</div>
+      <div class="vars">impulse = change in momentum</div>
+    </div>
+  </div>
+
+  <!-- GRAVITATION -->
+  <div class="card">
+    <div class="card-title">04 · Gravitační zákon — Gravitation</div>
+    <div class="formula-block" onclick="openModal('Newton\'s Law of Gravitation', 'F = G·m₁m₂ / r²', [['F','gravitational force between two masses (N)'],['G','gravitational constant = 6.674×10⁻¹¹ N·m²/kg²'],['m₁, m₂','the two masses (kg)'],['r','distance between their centres (m)']], 'Force drops with the square of distance — double the distance, force becomes ¼.')">
+      <div class="formula">F = G·m₁m₂ / r²</div>
+      <div class="vars">gravitational force between masses</div>
+    </div>
+  </div>
+
+  <!-- CIRCULAR MOTION -->
+  <div class="card">
+    <div class="card-title">05 · Pohyb po kružnici — Circular Motion</div>
+    <div class="formula-block" onclick="openModal('Circular Motion — Speed', 'v = 2πr / T', [['v','linear (tangential) speed (m/s)'],['r','radius of circle (m)'],['T','period — time for one full revolution (s)']], 'The object travels circumference 2πr every period T.')">
+      <div class="formula">v = 2πr / T</div>
+      <div class="vars">speed on circle</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Circular Motion — Frequency', 'f = 1 / T', [['f','frequency — revolutions per second (Hz)'],['T','period (s)']], 'e.g. T = 0.5s → f = 2 Hz (2 full circles per second)')">
+      <div class="formula">f = 1 / T</div>
+      <div class="vars">frequency and period</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Circular Motion — Angular Velocity', 'ω = 2π / T', [['ω','angular velocity — angle swept per second (rad/s)'],['T','period (s)']], 'ω = 2πf. Related to linear speed by v = ωr.')">
+      <div class="formula">ω = 2π / T</div>
+      <div class="vars">angular velocity</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Circular Motion — Centripetal Acceleration', 'a_c = v² / r', [['a_c','centripetal acceleration — always points to centre (m/s²)'],['v','speed (m/s)'],['r','radius (m)']], 'Even at constant speed, direction changes → there is acceleration.')">
+      <div class="formula">a_c = v² / r</div>
+      <div class="vars">centripetal acceleration</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Circular Motion — Centripetal Force', 'F_c = mv² / r', [['F_c','centripetal force — directed toward centre (N)'],['m','mass (kg)'],['v','speed (m/s)'],['r','radius (m)']], 'Not a new type of force — it is whatever force IS providing the centripetal effect (gravity, tension, friction…)')">
+      <div class="formula">F_c = mv² / r</div>
+      <div class="vars">centripetal force</div>
+    </div>
+  </div>
+
+  <!-- WORK ENERGY POWER -->
+  <div class="card">
+    <div class="card-title">06 · Práce, energie, výkon — Work, Energy, Power</div>
+    <div class="formula-block" onclick="openModal('Work', 'W = F·s·cos(θ)', [['W','work done (J = N·m)'],['F','applied force (N)'],['s','displacement (m)'],['θ','angle between force direction and displacement']], 'If force is parallel to motion θ=0, cos(0)=1, so W=Fs. If perpendicular, no work is done.')">
+      <div class="formula">W = F·s·cos(θ)</div>
+      <div class="vars">work done by a force</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Kinetic Energy', 'E_k = ½mv²', [['E_k','kinetic energy — energy of motion (J)'],['m','mass (kg)'],['v','speed (m/s)']], 'Doubling speed → 4× the kinetic energy (quadratic relationship).')">
+      <div class="formula">E_k = ½mv²</div>
+      <div class="vars">kinetic energy</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Potential Energy', 'E_p = mgh', [['E_p','gravitational potential energy (J)'],['m','mass (kg)'],['g','9.81 m/s²'],['h','height above reference point (m)']], 'Reference height is arbitrary — only changes in E_p matter.')">
+      <div class="formula">E_p = mgh</div>
+      <div class="vars">gravitational potential energy</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Power', 'P = W / t = F·v', [['P','power — rate of doing work (W = J/s)'],['W','work done (J)'],['t','time (s)'],['F','force (N)'],['v','velocity (m/s)']], '1 horsepower ≈ 746 W.')">
+      <div class="formula">P = W / t = F·v</div>
+      <div class="vars">power</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Efficiency', 'η = P_out / P_in', [['η','efficiency (0 to 1, or multiply by 100 for %)'],['P_out','useful output power (W)'],['P_in','total input power (W)']], 'No real machine is 100% efficient — energy is always lost to heat/friction.')">
+      <div class="formula">η = P_out / P_in</div>
+      <div class="vars">efficiency</div>
+    </div>
+  </div>
+
+  <!-- HYDROSTATICS -->
+  <div class="card">
+    <div class="card-title">07 · Hydrostatika — Hydrostatics</div>
+    <div class="formula-block" onclick="openModal('Pressure', 'p = F / A', [['p','pressure (Pa = N/m²)'],['F','force perpendicular to surface (N)'],['A','area of surface (m²)']], 'Same force over smaller area = higher pressure. Why needles pierce easily.')">
+      <div class="formula">p = F / A</div>
+      <div class="vars">pressure from force</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Hydrostatic Pressure', 'p = ρgh', [['p','pressure at depth h (Pa)'],['ρ','fluid density (kg/m³) — water ≈ 1000'],['g','9.81 m/s²'],['h','depth below surface (m)']], 'Pressure increases linearly with depth. Direction does not matter.')">
+      <div class="formula">p = ρgh</div>
+      <div class="vars">pressure at depth</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Archimedes\' Principle', 'F_b = ρVg', [['F_b','buoyancy (upward) force (N)'],['ρ','density of the fluid (kg/m³)'],['V','volume of fluid displaced = submerged volume (m³)'],['g','9.81 m/s²']], 'Object floats if F_b ≥ weight. Sinks if weight > F_b.')">
+      <div class="formula">F_b = ρVg</div>
+      <div class="vars">buoyancy — Archimedes</div>
+    </div>
+  </div>
+
+  <!-- HYDRODYNAMICS -->
+  <div class="card">
+    <div class="card-title">08 · Hydrodynamika — Hydrodynamics</div>
+    <div class="formula-block" onclick="openModal('Continuity Equation', 'Q = A·v', [['Q','volumetric flow rate (m³/s)'],['A','cross-sectional area of pipe (m²)'],['v','fluid velocity (m/s)']], 'Flow rate is constant in a pipe: A₁v₁ = A₂v₂. Narrow pipe → faster flow.')">
+      <div class="formula">Q = A·v</div>
+      <div class="vars">flow rate continuity</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Bernoulli\'s Equation', 'p + ½ρv² + ρgh = const', [['p','static pressure (Pa)'],['ρ','fluid density (kg/m³)'],['v','fluid velocity (m/s)'],['g','9.81 m/s²'],['h','height (m)']], 'Energy conservation for fluids. Faster flow = lower pressure. Explains airplane lift.')">
+      <div class="formula">p + ½ρv² + ρgh = const</div>
+      <div class="vars">Bernoulli's principle</div>
+    </div>
+  </div>
+
+  <!-- HOOKE'S LAW -->
+  <div class="card">
+    <div class="card-title">10 · Hookův zákon — Hooke's Law</div>
+    <div class="formula-block" onclick="openModal('Hooke\'s Law', 'F = k·x', [['F','restoring force of spring (N)'],['k','spring constant — stiffness (N/m)'],['x','extension or compression from rest position (m)']], 'Valid only within the elastic limit. Beyond it, spring is permanently deformed.')">
+      <div class="formula">F = k·x</div>
+      <div class="vars">spring force</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Elastic Potential Energy', 'E_el = ½kx²', [['E_el','energy stored in spring (J)'],['k','spring constant (N/m)'],['x','extension or compression (m)']], 'This energy converts to kinetic energy when spring is released.')">
+      <div class="formula">E_el = ½kx²</div>
+      <div class="vars">energy stored in spring</div>
+    </div>
+  </div>
+
+  <!-- OSCILLATIONS & WAVES -->
+  <div class="card">
+    <div class="card-title">11 · Kmitání, vlnění — Oscillations & Waves</div>
+    <div class="formula-block" onclick="openModal('Spring Oscillator Period', 'T = 2π√(m/k)', [['T','period — time for one full oscillation (s)'],['m','mass on spring (kg)'],['k','spring constant (N/m)']], 'Heavier mass = slower oscillation. Stiffer spring = faster oscillation.')">
+      <div class="formula">T = 2π√(m/k)</div>
+      <div class="vars">spring oscillator period</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Pendulum Period', 'T = 2π√(l/g)', [['T','period (s)'],['l','length of pendulum string (m)'],['g','9.81 m/s²']], 'Does NOT depend on mass or amplitude (for small angles). Only length matters.')">
+      <div class="formula">T = 2π√(l/g)</div>
+      <div class="vars">pendulum period</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Wave Equation', 'v = f·λ', [['v','wave propagation speed (m/s)'],['f','frequency (Hz)'],['λ','wavelength — distance between two peaks (m)']], 'Applies to all waves: sound, light, water, seismic.')">
+      <div class="formula">v = f·λ</div>
+      <div class="vars">wave speed</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Sound Intensity Level', 'L = 10·log(I/I₀)', [['L','sound level (decibels, dB)'],['I','sound intensity (W/m²)'],['I₀','threshold of hearing = 10⁻¹² W/m²']], 'Every +10 dB = 10× more intense. 0 dB = barely audible; 120 dB = pain threshold.')">
+      <div class="formula">L = 10·log(I/I₀)</div>
+      <div class="vars">sound level in decibels</div>
+    </div>
+  </div>
+
+  <!-- THERMODYNAMICS -->
+  <div class="card">
+    <div class="card-title">12 · Termodynamika — Thermodynamics</div>
+    <div class="formula-block" onclick="openModal('Ideal Gas Law', 'pV = nRT', [['p','pressure (Pa)'],['V','volume (m³)'],['n','amount of gas (moles)'],['R','universal gas constant = 8.314 J/(mol·K)'],['T','absolute temperature (Kelvin — NOT Celsius!)']], 'Convert Celsius to Kelvin: T(K) = T(°C) + 273.15')">
+      <div class="formula">pV = nRT</div>
+      <div class="vars">ideal gas law</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Heat Transfer', 'Q = mc·ΔT', [['Q','heat energy added or removed (J)'],['m','mass of substance (kg)'],['c','specific heat capacity (J/kg·K)'],['ΔT','temperature change (K or °C)']], 'Water: c = 4186 J/kg·K — very high, which is why water is used for cooling.')">
+      <div class="formula">Q = mc·ΔT</div>
+      <div class="vars">heat and temperature change</div>
+    </div>
+    <div class="formula-block" onclick="openModal('First Law of Thermodynamics', 'ΔU = Q − W', [['ΔU','change in internal energy of system (J)'],['Q','heat added to the system (J)'],['W','work done BY the system on surroundings (J)']], 'Energy conservation for thermodynamic systems. You can increase internal energy by heating it or by doing work on it.')">
+      <div class="formula">ΔU = Q − W</div>
+      <div class="vars">1st law of thermodynamics</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Carnot Efficiency', 'η = 1 − T_c / T_h', [['η','maximum possible efficiency (0 to 1)'],['T_c','temperature of cold reservoir (Kelvin)'],['T_h','temperature of hot reservoir (Kelvin)']], 'No real engine can exceed Carnot efficiency. Both temperatures MUST be in Kelvin.')">
+      <div class="formula">η = 1 − T_c / T_h</div>
+      <div class="vars">Carnot efficiency</div>
+    </div>
+  </div>
+
+  <!-- ELECTRICITY -->
+  <div class="card">
+    <div class="card-title">13 · Elektřina — Electricity & Current</div>
+    <div class="formula-block" onclick="openModal('Ohm\'s Law', 'U = R·I', [['U','voltage — electric potential difference (V)'],['R','resistance (Ω, ohms)'],['I','current — charge flow per second (A)']], 'The foundation of circuit analysis. Rearrange: I = U/R or R = U/I.')">
+      <div class="formula">U = R·I</div>
+      <div class="vars">Ohm's Law</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Electrical Power', 'P = U·I = I²R = U²/R', [['P','power dissipated (W)'],['U','voltage (V)'],['I','current (A)'],['R','resistance (Ω)']], 'Three equivalent forms — use whichever two variables you know.')">
+      <div class="formula">P = U·I = I²R = U²/R</div>
+      <div class="vars">electrical power</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Resistance of a Wire', 'R = ρ·l / A', [['R','resistance (Ω)'],['ρ','resistivity of material (Ω·m)'],['l','length of wire (m)'],['A','cross-sectional area (m²)']], 'Longer wire = more resistance. Thicker wire = less resistance.')">
+      <div class="formula">R = ρ·l / A</div>
+      <div class="vars">wire resistance</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Capacitance', 'C = Q / U', [['C','capacitance (F, farads)'],['Q','charge stored (C, coulombs)'],['U','voltage across capacitor (V)']], 'Capacitors store energy in an electric field between two plates.')">
+      <div class="formula">C = Q / U</div>
+      <div class="vars">capacitance</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Energy in a Capacitor', 'E = ½CU²', [['E','energy stored (J)'],['C','capacitance (F)'],['U','voltage (V)']], 'Energy is stored in the electric field. Released instantly — capacitors can deliver large bursts of power.')">
+      <div class="formula">E = ½CU²</div>
+      <div class="vars">energy in capacitor</div>
+    </div>
+  </div>
+
+  <!-- MAGNETISM & AC -->
+  <div class="card">
+    <div class="card-title">14 · Magnetismus — Magnetism & AC</div>
+    <div class="formula-block" onclick="openModal('Lorentz Force on a Charge', 'F = qvB·sin(θ)', [['F','magnetic force on moving charge (N)'],['q','electric charge (C)'],['v','velocity of charge (m/s)'],['B','magnetic field strength (T, tesla)'],['θ','angle between velocity and field direction']], 'Maximum force when v ⊥ B (θ=90°). No force when moving parallel to field.')">
+      <div class="formula">F = qvB·sin(θ)</div>
+      <div class="vars">Lorentz force on charge</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Force on a Current-Carrying Wire', 'F = BIl·sin(θ)', [['F','force on wire (N)'],['B','magnetic field (T)'],['I','current in wire (A)'],['l','length of wire in field (m)'],['θ','angle between wire and field']], 'Basis for electric motors. Maximum force when wire is perpendicular to field.')">
+      <div class="formula">F = BIl·sin(θ)</div>
+      <div class="vars">force on wire in field</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Faraday\'s Law of Induction', 'U = −N·ΔΦ/Δt', [['U','induced voltage / EMF (V)'],['N','number of coil turns'],['ΔΦ','change in magnetic flux (Wb = T·m²)'],['Δt','time over which flux changes (s)']], 'The minus sign (Lenz\'s Law) means the induced current opposes the change causing it.')">
+      <div class="formula">U = −N·ΔΦ/Δt</div>
+      <div class="vars">Faraday's induction law</div>
+    </div>
+    <div class="formula-block" onclick="openModal('RMS Voltage (AC)', 'U_rms = U_max / √2', [['U_rms','root mean square voltage — effective AC voltage (V)'],['U_max','peak voltage amplitude (V)']], 'Household current: U_max ≈ 325V, U_rms = 230V. RMS is what causes the same heating as equivalent DC.')">
+      <div class="formula">U_rms = U_max / √2</div>
+      <div class="vars">AC effective voltage</div>
+    </div>
+  </div>
+
+  <!-- OPTICS -->
+  <div class="card">
+    <div class="card-title">15 · Optika — Optics</div>
+    <div class="formula-block" onclick="openModal('Refractive Index', 'n = c / v', [['n','refractive index (dimensionless, ≥1)'],['c','speed of light in vacuum = 3×10⁸ m/s'],['v','speed of light in the medium (m/s)']], 'Glass: n≈1.5, water: n≈1.33, air: n≈1.0003. Higher n = slower light.')">
+      <div class="formula">n = c / v</div>
+      <div class="vars">refractive index</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Snell\'s Law', 'n₁·sin(θ₁) = n₂·sin(θ₂)', [['n₁, n₂','refractive indices of medium 1 and 2'],['θ₁','angle of incidence (from normal)'],['θ₂','angle of refraction (from normal)']], 'Light bends toward normal when entering denser medium (higher n). Total internal reflection when θ₁ > critical angle.')">
+      <div class="formula">n₁·sin(θ₁) = n₂·sin(θ₂)</div>
+      <div class="vars">Snell's Law — refraction</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Thin Lens / Mirror Equation', '1/f = 1/d_o + 1/d_i', [['f','focal length (m) — positive for converging, negative for diverging'],['d_o','object distance from lens/mirror (m)'],['d_i','image distance (m) — negative if virtual image']], 'Works for both lenses and mirrors with sign conventions.')">
+      <div class="formula">1/f = 1/d_o + 1/d_i</div>
+      <div class="vars">lens / mirror equation</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Magnification', 'M = d_i / d_o', [['M','magnification (dimensionless)'],['d_i','image distance (m)'],['d_o','object distance (m)']], 'M > 1: enlarged image. M < 1: reduced. Negative M: inverted image.')">
+      <div class="formula">M = d_i / d_o</div>
+      <div class="vars">magnification</div>
+    </div>
+  </div>
+
+  <!-- QUANTUM -->
+  <div class="card">
+    <div class="card-title">16 · Mikrosvět — Quantum & Atomic</div>
+    <div class="formula-block" onclick="openModal('Photon Energy', 'E = hf', [['E','energy of a single photon (J)'],['h','Planck\'s constant = 6.626×10⁻³⁴ J·s'],['f','frequency of light (Hz)']], 'Higher frequency = higher energy. UV photons more energetic than visible; X-rays more than UV.')">
+      <div class="formula">E = hf</div>
+      <div class="vars">photon energy</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Mass–Energy Equivalence', 'E = mc²', [['E','energy (J)'],['m','mass (kg)'],['c','speed of light = 3×10⁸ m/s']], 'Even tiny masses contain enormous energy. Basis of nuclear reactions.')">
+      <div class="formula">E = mc²</div>
+      <div class="vars">mass–energy equivalence</div>
+    </div>
+    <div class="formula-block" onclick="openModal('de Broglie Wavelength', 'λ = h / mv', [['λ','de Broglie wavelength of a particle (m)'],['h','Planck\'s constant = 6.626×10⁻³⁴ J·s'],['m','mass of particle (kg)'],['v','velocity (m/s)']], 'All matter has wave-like properties. Heavier/faster particles have shorter wavelengths.')">
+      <div class="formula">λ = h / mv</div>
+      <div class="vars">de Broglie wavelength</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Radioactive Decay', 'N = N₀·e^(−λt)', [['N','number of remaining nuclei at time t'],['N₀','initial number of nuclei'],['λ','decay constant (s⁻¹) — specific to each isotope'],['t','time elapsed (s)']], 'Half-life t½ = ln(2)/λ ≈ 0.693/λ. After each half-life, half the nuclei have decayed.')">
+      <div class="formula">N = N₀·e^(−λt)</div>
+      <div class="vars">radioactive decay</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+  <div class="modal" id="modal">
+    <div class="modal-accent"></div>
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div class="modal-topic" id="modalTopic"></div>
+    <div class="modal-formula" id="modalFormula"></div>
+    <div class="modal-divider"></div>
+    <div class="modal-vars-title">Variables</div>
+    <div id="modalVars"></div>
+    <div class="modal-note" id="modalNote" style="display:none"></div>
+  </div>
+</div>
+
+<script>
+  function openModal(topic, formula, vars, note) {
+    document.getElementById('modalTopic').textContent = topic;
+    document.getElementById('modalFormula').textContent = formula;
+
+    const varsEl = document.getElementById('modalVars');
+    varsEl.innerHTML = '';
+    vars.forEach(([name, desc]) => {
+      varsEl.innerHTML += `
+        <div class="modal-var-row">
+          <div class="modal-var-name">${name}</div>
+          <div class="modal-var-desc">${desc}</div>
+        </div>`;
+    });
+
+    const noteEl = document.getElementById('modalNote');
+    if (note) {
+      noteEl.textContent = '💡 ' + note;
+      noteEl.style.display = 'block';
+    } else {
+      noteEl.style.display = 'none';
+    }
+
+    document.getElementById('modalOverlay').classList.add('active');
+  }
+
+  function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('active');
+  }
+
+  function closeModalOnOverlay(e) {
+    if (e.target === document.getElementById('modalOverlay')) closeModal();
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') closeModal();
+  });
+</script>
+</body>
+</html>
