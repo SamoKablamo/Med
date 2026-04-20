@@ -259,6 +259,26 @@
 </style>
 </head>
 <body>
+    <nav style="
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  background: #0f0f18;
+  border-bottom: 1px solid #2a2a3e;
+  padding: 0 2rem;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  z-index: 999;
+  font-family: 'Space Mono', monospace;
+">
+  <a href="Physics.html" style="color: #7c6af7; text-decoration: none; font-size: 0.85rem; padding: 0.4rem 1rem; border-radius: 6px; background: #1a1a26; border: 1px solid #2a2a3e;">Physics</a>
+  <a href="biology.html" style="color: #8888a8; text-decoration: none; font-size: 0.85rem; padding: 0.4rem 1rem; border-radius: 6px; background: #1a1a26; border: 1px solid #2a2a3e;">Biology</a>
+  <a href="chemistry.html" style="color: #8888a8; text-decoration: none; font-size: 0.85rem; padding: 0.4rem 1rem; border-radius: 6px; background: #1a1a26; border: 1px solid #2a2a3e;">Chemistry</a>
+</nav>
+    
+    <div style="height: 56px;"></div>
 
 <div class="header">
   <h1>Physics Formula Sheet</h1>
@@ -266,6 +286,42 @@
 </div>
 
 <div class="grid">
+    <!-- SI UNITS -->
+  <div class="card">
+    <div class="card-title">01 · Základní jednotky — SI Base Units</div>
+    <div class="formula-block" onclick="openModal('SI Base Units', 'The 7 Base Units', [['m','metre — length'],['kg','kilogram — mass'],['s','second — time'],['A','ampere — electric current'],['K','kelvin — temperature'],['mol','mole — amount of substance'],['cd','candela — luminous intensity']], 'All other units are derived from these 7. Learn these by heart.')">
+      <div class="formula">m, kg, s, A, K, mol, cd</div>
+      <div class="vars">the 7 SI base units</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Length Conversions', 'Distance & Length', [['1 km','= 1000 m'],['1 m','= 100 cm = 1000 mm'],['1 cm','= 0.01 m'],['1 mm','= 0.001 m'],['1 nm','= 10⁻⁹ m (used for wavelengths)'],['1 Å','= 10⁻¹⁰ m (atomic scale)']], 'Kilo = ×10³, centi = ×10⁻², milli = ×10⁻³, nano = ×10⁻⁹')">
+      <div class="formula">km → m → cm → mm</div>
+      <div class="vars">length conversions</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Mass Conversions', 'Mass', [['1 t','= 1000 kg (tonne)'],['1 kg','= 1000 g'],['1 g','= 0.001 kg'],['1 mg','= 10⁻⁶ kg'],['1 μg','= 10⁻⁹ kg']], 'Be careful — kg is the BASE unit, not g. Always convert to kg before calculating.')">
+      <div class="formula">t → kg → g → mg</div>
+      <div class="vars">mass conversions</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Time Conversions', 'Time', [['1 h','= 60 min = 3600 s'],['1 min','= 60 s'],['1 ms','= 0.001 s = 10⁻³ s'],['1 μs','= 10⁻⁶ s'],['1 ns','= 10⁻⁹ s']], 'Always convert to seconds (s) before plugging into formulas.')">
+      <div class="formula">h → min → s → ms</div>
+      <div class="vars">time conversions</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Temperature Conversions', 'Temperature', [['K to °C','T(°C) = T(K) − 273.15'],['°C to K','T(K) = T(°C) + 273.15'],['0 K','= −273.15°C (absolute zero)'],['0°C','= 273.15 K'],['100°C','= 373.15 K']], 'Always use Kelvin in gas law and thermodynamics formulas. Never use Celsius directly.')">
+      <div class="formula">T(K) = T(°C) + 273.15</div>
+      <div class="vars">temperature conversions</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Pressure Conversions', 'Pressure', [['1 Pa','= 1 N/m² (SI unit)'],['1 kPa','= 1000 Pa'],['1 MPa','= 10⁶ Pa'],['1 atm','= 101 325 Pa ≈ 101.3 kPa'],['1 bar','= 100 000 Pa'],['1 mmHg','= 133.3 Pa']], 'Standard atmospheric pressure = 1 atm = 101.3 kPa. Used as reference in gas laws.')">
+      <div class="formula">Pa → kPa → atm → bar</div>
+      <div class="vars">pressure conversions</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Energy Conversions', 'Energy', [['1 J','= 1 N·m = 1 kg·m²/s²'],['1 kJ','= 1000 J'],['1 MJ','= 10⁶ J'],['1 kWh','= 3 600 000 J = 3.6 MJ'],['1 eV','= 1.602×10⁻¹⁹ J (used in atomic physics)'],['1 cal','= 4.184 J']], '1 kWh is the unit on your electricity bill. 1 eV is used for photon and particle energies.')">
+      <div class="formula">J → kJ → MJ → kWh</div>
+      <div class="vars">energy conversions</div>
+    </div>
+    <div class="formula-block" onclick="openModal('SI Prefixes', 'Metric Prefixes', [['T (tera)','× 10¹²'],['G (giga)','× 10⁹'],['M (mega)','× 10⁶'],['k (kilo)','× 10³'],['c (centi)','× 10⁻²'],['m (milli)','× 10⁻³'],['μ (micro)','× 10⁻⁶'],['n (nano)','× 10⁻⁹'],['p (pico)','× 10⁻¹²']], 'Tip: moving the prefix to the unit means moving the decimal point. e.g. 5 km = 5000 m = 5×10³ m')">
+      <div class="formula">T G M k — c m μ n p</div>
+      <div class="vars">SI prefixes and their multipliers</div>
+    </div>
+  </div>
 
   <!-- KINEMATICS -->
   <div class="card">
@@ -535,6 +591,67 @@
   </div>
 
   <!-- QUANTUM -->
+    <!-- CIRCUIT ANALYSIS -->
+  <div class="card">
+    <div class="card-title">13b · Obvody — Circuit Analysis</div>
+    <div class="formula-block" onclick="openModal('Kirchhoff\'s Current Law', 'ΣI_in = ΣI_out', [['I_in','sum of all currents entering a node (A)'],['I_out','sum of all currents leaving a node (A)']], 'What goes in must come out. Charge cannot accumulate at a junction.')">
+      <div class="formula">ΣI_in = ΣI_out</div>
+      <div class="vars">Kirchhoff's Current Law (KCL)</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Kirchhoff\'s Voltage Law', 'ΣU = 0', [['U','voltage across each component in a closed loop (V)']], 'The sum of all voltages around any closed loop is zero. Energy conservation for circuits.')">
+      <div class="formula">ΣU = 0</div>
+      <div class="vars">Kirchhoff's Voltage Law (KVL)</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Resistors in Series', 'R_total = R₁ + R₂ + R₃...', [['R_total','total resistance (Ω)'],['R₁, R₂...','individual resistances (Ω)']], 'Same current flows through all. Total resistance always increases.')">
+      <div class="formula">R_total = R₁ + R₂ + R₃...</div>
+      <div class="vars">series resistors</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Resistors in Parallel', '1/R_total = 1/R₁ + 1/R₂ + 1/R₃...', [['R_total','total resistance (Ω) — always less than smallest R'],['R₁, R₂...','individual resistances (Ω)']], 'Same voltage across all. Total resistance always decreases.')">
+      <div class="formula">1/R_total = 1/R₁ + 1/R₂...</div>
+      <div class="vars">parallel resistors</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Capacitors in Series', '1/C_total = 1/C₁ + 1/C₂...', [['C_total','total capacitance (F)'],['C₁, C₂...','individual capacitances (F)']], 'Opposite behaviour to resistors — series capacitors give less total capacitance.')">
+      <div class="formula">1/C_total = 1/C₁ + 1/C₂...</div>
+      <div class="vars">series capacitors</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Capacitors in Parallel', 'C_total = C₁ + C₂ + C₃...', [['C_total','total capacitance (F)'],['C₁, C₂...','individual capacitances (F)']], 'Parallel capacitors add directly — more total capacitance.')">
+      <div class="formula">C_total = C₁ + C₂ + C₃...</div>
+      <div class="vars">parallel capacitors</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Transformer Equation', 'N₁/N₂ = U₁/U₂', [['N₁, N₂','number of turns in primary and secondary coil'],['U₁','input voltage (V)'],['U₂','output voltage (V)']], 'More turns on secondary = higher output voltage (step-up). Fewer = lower (step-down).')">
+      <div class="formula">N₁/N₂ = U₁/U₂</div>
+      <div class="vars">transformer</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Resonant Frequency', 'f₀ = 1 / (2π√(LC))', [['f₀','resonant frequency (Hz)'],['L','inductance (H, henrys)'],['C','capacitance (F)']], 'At resonance, impedance is purely resistive and current is maximum. Used in radio tuners.')">
+      <div class="formula">f₀ = 1 / (2π√(LC))</div>
+      <div class="vars">LC resonant frequency</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Inductance', 'U = L·ΔI/Δt', [['U','induced voltage across inductor (V)'],['L','inductance (H)'],['ΔI/Δt','rate of change of current (A/s)']], 'Inductors resist changes in current. The faster current changes, the higher the induced voltage.')">
+      <div class="formula">U = L·ΔI/Δt</div>
+      <div class="vars">inductor voltage</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Impedance', 'Z = √(R² + X²)', [['Z','impedance — total AC resistance (Ω)'],['R','resistance (Ω)'],['X','reactance — from capacitors/inductors (Ω)']], 'Impedance is the AC equivalent of resistance. Use in place of R for AC circuit calculations.')">
+      <div class="formula">Z = √(R² + X²)</div>
+      <div class="vars">impedance</div>
+    </div>
+  </div>
+
+  <!-- WAVE PHYSICS -->
+  <div class="card">
+    <div class="card-title">11b · Vlnění — Wave Physics</div>
+    <div class="formula-block" onclick="openModal('Standing Waves', 'λ = 2L / n', [['λ','wavelength (m)'],['L','length of string or pipe (m)'],['n','harmonic number (1, 2, 3...)']], 'n=1 is the fundamental frequency. n=2 is the first overtone, and so on.')">
+      <div class="formula">λ = 2L / n</div>
+      <div class="vars">standing wave wavelengths</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Wave Interference', 'Constructive: Δ = nλ | Destructive: Δ = (n+½)λ', [['Δ','path difference between two waves (m)'],['n','integer (0, 1, 2...)'],['λ','wavelength (m)']], 'Constructive = waves add up (bright/loud). Destructive = waves cancel out (dark/silent).')">
+      <div class="formula">Constructive: Δ = nλ</div>
+      <div class="vars">wave interference conditions</div>
+    </div>
+    <div class="formula-block" onclick="openModal('Doppler Effect', 'f\' = f·(v ± v_o)/(v ∓ v_s)', [['f\'','observed frequency (Hz)'],['f','source frequency (Hz)'],['v','speed of sound (m/s)'],['v_o','speed of observer (m/s)'],['v_s','speed of source (m/s)']], 'Use + on top when observer moves toward source. Use − on bottom when source moves toward observer.')">
+      <div class="formula">f' = f·(v ± v_o)/(v ∓ v_s)</div>
+      <div class="vars">Doppler effect</div>
+    </div>
+  </div>
   <div class="card">
     <div class="card-title">16 · Mikrosvět — Quantum & Atomic</div>
     <div class="formula-block" onclick="openModal('Photon Energy', 'E = hf', [['E','energy of a single photon (J)'],['h','Planck\'s constant = 6.626×10⁻³⁴ J·s'],['f','frequency of light (Hz)']], 'Higher frequency = higher energy. UV photons more energetic than visible; X-rays more than UV.')">
